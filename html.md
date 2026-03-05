@@ -1,0 +1,164 @@
+<style>
+    .jadad-container {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        max-width: 650px;
+        margin: 0 auto;
+        background: #fff;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        color: #333;
+        line-height: 1.6;
+    }
+    .jadad-container h2 {
+        text-align: center;
+        color: #2c3e50;
+        margin-bottom: 20px;
+    }
+    .jadad-question {
+        margin-bottom: 20px;
+        padding: 15px;
+        background: #f9f9f9;
+        border-left: 4px solid #3498db;
+        border-radius: 4px;
+    }
+    .jadad-question p {
+        font-weight: bold;
+        margin-top: 0;
+        margin-bottom: 10px;
+    }
+    .jadad-options label {
+        display: inline-block;
+        margin-right: 15px;
+        cursor: pointer;
+    }
+    .jadad-result {
+        margin-top: 30px;
+        padding: 20px;
+        text-align: center;
+        border-radius: 8px;
+        font-size: 1.2em;
+        font-weight: bold;
+        transition: background-color 0.3s ease;
+    }
+    .jadad-quality-text {
+        display: block;
+        margin-top: 10px;
+        font-size: 0.9em;
+    }
+    .jadad-high { background-color: #d4edda; color: #155724; }
+    .jadad-low { background-color: #f8d7da; color: #721c24; }
+    
+    .jadad-reset-btn {
+        display: block;
+        width: 100%;
+        margin-top: 20px;
+        padding: 12px;
+        background-color: #7f8c8d;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 1em;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    .jadad-reset-btn:hover {
+        background-color: #95a5a6;
+    }
+</style>
+
+<div class="jadad-container">
+    <h2>Calculadora de la Escala Jadad</h2>
+    <p style="text-align: center; margin-bottom: 30px;">Selecciona las opciones para calcular automáticamente la calidad del ensayo clínico.</p>
+
+    <form id="jadadForm">
+        <div class="jadad-question">
+            <p>1. ¿El estudio se describe como aleatorizado?</p>
+            <div class="jadad-options">
+                <label><input type="radio" name="q1" value="1"> Sí (+1)</label>
+                <label><input type="radio" name="q1" value="0" checked> No (0)</label>
+            </div>
+        </div>
+
+        <div class="jadad-question">
+            <p>2. Si es aleatorizado, ¿el método de aleatorización descrito es apropiado?</p>
+            <div class="jadad-options">
+                <label><input type="radio" name="q2" value="1"> Sí (+1)</label>
+                <label><input type="radio" name="q2" value="-1"> Inapropiado (-1)</label>
+                <label><input type="radio" name="q2" value="0" checked> No descrito (0)</label>
+            </div>
+        </div>
+
+        <div class="jadad-question">
+            <p>3. ¿El estudio se describe como doble ciego?</p>
+            <div class="jadad-options">
+                <label><input type="radio" name="q3" value="1"> Sí (+1)</label>
+                <label><input type="radio" name="q3" value="0" checked> No (0)</label>
+            </div>
+        </div>
+
+        <div class="jadad-question">
+            <p>4. Si es doble ciego, ¿el método de cegamiento descrito es apropiado?</p>
+            <div class="jadad-options">
+                <label><input type="radio" name="q4" value="1"> Sí (+1)</label>
+                <label><input type="radio" name="q4" value="-1"> Inapropiado (-1)</label>
+                <label><input type="radio" name="q4" value="0" checked> No descrito (0)</label>
+            </div>
+        </div>
+
+        <div class="jadad-question">
+            <p>5. ¿Hay una descripción de las pérdidas (retiros) y abandonos?</p>
+            <div class="jadad-options">
+                <label><input type="radio" name="q5" value="1"> Sí (+1)</label>
+                <label><input type="radio" name="q5" value="0" checked> No (0)</label>
+            </div>
+        </div>
+    </form>
+
+    <div id="resultBox" class="jadad-result jadad-low">
+        Puntuación Total: <span id="scoreValue">0</span> / 5
+        <span id="qualityText" class="jadad-quality-text">Baja calidad metodológica</span>
+    </div>
+
+    <button type="button" id="btnReset" class="jadad-reset-btn">Reiniciar respuestas</button>
+</div>
+
+<script>
+    const form = document.getElementById('jadadForm');
+    const scoreValue = document.getElementById('scoreValue');
+    const resultBox = document.getElementById('resultBox');
+    const qualityText = document.getElementById('qualityText');
+    const btnReset = document.getElementById('btnReset');
+
+    function calcularJadad() {
+        const q1 = parseInt(form.elements['q1'].value);
+        const q2 = parseInt(form.elements['q2'].value);
+        const q3 = parseInt(form.elements['q3'].value);
+        const q4 = parseInt(form.elements['q4'].value);
+        const q5 = parseInt(form.elements['q5'].value);
+
+        let total = q1 + q2 + q3 + q4 + q5;
+        if (total < 0) total = 0;
+        if (total > 5) total = 5;
+
+        scoreValue.textContent = total;
+
+        if (total >= 3) {
+            resultBox.className = 'jadad-result jadad-high';
+            qualityText.textContent = 'Alta calidad metodológica (Estudio riguroso)';
+        } else {
+            resultBox.className = 'jadad-result jadad-low';
+            qualityText.textContent = 'Baja calidad metodológica (Mayor riesgo de sesgo)';
+        }
+    }
+
+    form.addEventListener('change', calcularJadad);
+
+    // Lógica para el botón de reiniciar
+    btnReset.addEventListener('click', function() {
+        form.reset();       // Devuelve los botones a su estado original
+        calcularJadad();    // Recalcula para que vuelva a marcar "0"
+    });
+
+    calcularJadad();
+</script>
